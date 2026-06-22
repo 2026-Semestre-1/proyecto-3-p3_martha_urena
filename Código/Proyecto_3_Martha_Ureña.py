@@ -3,6 +3,7 @@
 *APUNTES:
 -super() me lo enseño a usar el tutor de taller, me funciona para poder llamar el constructor de la clase que se heredan los atributos.
 """
+
 """
 Nombre: Pais
 Atributos: codigo_fifa, nombre, continente, ranking_fifa
@@ -42,6 +43,7 @@ class Pais:
             print("Código FIFA: ", self.codigo_fifa)
             print("Continente: ", self.continente)
             print("Ranking FIFA: " , self.ranking_fifa)
+            
     """
     Nombre: actualizar_datos
     Entradas: nombre, codigo, continente, ranking_fila
@@ -377,21 +379,341 @@ class Futbolista(Persona):
         else:
             return "Error: El tipo de tarjeta debe ser 'amarilla' o 'roja'" 
                 
+"""
+Nombre: Seleccion
+Atributos: codigo_equipo, pais, entrenador, jugadores, total_goles_favor, total_goles_contra, total_tarjetas_amarillas, total_tarjetas_rojas, fuerza_equipo
+Métodos: constructor, mostrar_datos, agregar_jugador, eliminar_jugador, asignar_entrenador, registrar_resultado, calcular_fuerza_equipo
+"""
 
+class Seleccion:
+    """
+    Definición: Constructor
+    Salidas:  inicializa los atributos (la lista de jugadores inicia vacía y los contadores en cero)
+    """
+    def __init__(self, codigo_equipo, pais, entrenador):
+        self.codigo_equipo = codigo_equipo
+        self.pais = pais
+        self.entrenador = entrenador
+        self.jugadores = []
+        self.total_goles_favor = 0
+        self.total_goles_contra = 0
+        self.total_tarjetas_amarillas = 0
+        self.total_tarjetas_rojas = 0
+        self.fuerza_equipo = 0
 
-
-
-
-
-
-
-
-
-
-
-
-
+    """
+    Nombre: largoLista
+    Entradas: una lista
+    Salidas: la cantidad de elementos que posee la lista
+    Restricciones:
+        El parámetro de entrada debe ser una lista
+    """
+    def largoLista(self, lista):
+        if not isinstance(lista, list):
+            return "Error: El parámetro de entrada debe ser de tipo lista"
+        else:
+            contador = 0
+            for elemento in lista:
+                contador = contador + 1
+            return contador
+        
+    """
+    Nombre: mostrar_datos
+    Entradas: codigo_equipo, pais, entrenador, jugadores, total_goles_favor, total_goles_contra, total_tarjetas_amarillas, total_tarjetas_rojas, fuerza_equipo
+    Salidas: muestra la información de la selección, incluyendo país, entrenador y plantilla
+    Restricciones:
+        codigo_equipo debe ser de tipo String
+        pais debe ser un objeto Pais
+        entrenador debe ser un objeto Entrenador
+        jugadores debe ser una lista de futbolistas con mínimo 11 y máximo 23
+        los totales deben ser enteros no negativos
+    """
+    def mostrar_datos(self):
+        if not isinstance(self.codigo_equipo, str):
+            return "Error: El código del equipo debe ser de tipo String"
+        try:
+            valor = self.pais.codigo_fifa
+        except Exception:
+            return "Error: El país debe ser un objeto Pais"
+        try:
+            valor = self.entrenador.licencia
+        except Exception:
+            return "Error: El entrenador debe ser un objeto Entrenador"
+        if not isinstance(self.jugadores, list):
+            return "Error: Los jugadores deben estar en una lista"
+        elif self.largoLista(self.jugadores) < 11:
+            return "Error: La selección debe tener al menos 11 jugadores"
+        elif self.largoLista(self.jugadores) > 23:
+            return "Error: La selección no puede tener más de 23 jugadores"
+        elif not isinstance(self.total_goles_favor, int):
+            return "Error: total_goles_favor debe ser un número entero"
+        elif self.total_goles_favor < 0:
+            return "Error: total_goles_favor no puede ser negativo"
+        elif not isinstance(self.total_goles_contra, int):
+            return "Error: total_goles_contra debe ser un número entero"
+        elif self.total_goles_contra < 0:
+            return "Error: total_goles_contra no puede ser negativo"
+        elif not isinstance(self.total_tarjetas_amarillas, int):
+            return "Error: total_tarjetas_amarillas debe ser un número entero"
+        elif self.total_tarjetas_amarillas < 0:
+            return "Error: total_tarjetas_amarillas no puede ser negativo"
+        elif not isinstance(self.total_tarjetas_rojas, int):
+            return "Error: total_tarjetas_rojas debe ser un número entero"
+        elif self.total_tarjetas_rojas < 0:
+            return "Error: total_tarjetas_rojas no puede ser negativo"
+        elif not isinstance(self.fuerza_equipo, int):
+            return "Error: fuerza_equipo debe ser un número entero"
+        else:
+            print("Código equipo:", self.codigo_equipo)
+            print("País:", self.pais.nombre)
+            print("Entrenador:", self.entrenador.nombre, self.entrenador.apellido)
+            print("Total goles favor:", self.total_goles_favor)
+            print("Total goles contra:", self.total_goles_contra)
+            print("Total tarjetas amarillas:", self.total_tarjetas_amarillas)
+            print("Total tarjetas rojas:", self.total_tarjetas_rojas)
+            print("Fuerza equipo:", self.fuerza_equipo)
+            print("Jugadores convocados:")
+            for jugador in self.jugadores:
+                print("  -", jugador.dorsal, jugador.nombre, jugador.apellido, jugador.posicion)
 
         
+    """
+    Nombre: agregar_jugador
+    Entradas: futbolista
+    Salidas: agrega un futbolista a la lista, validando que no se exceda el máximo de 23
+    Restricciones:
+        futbolista debe ser un objeto Futbolista
+        la lista no debe exceder 23 jugadores
+        no debe haber dos jugadores con el mismo dorsal
+
+    """
+    def agregar_jugador(self, futbolista):
+        try:
+            valor = futbolista.dorsal
+        except Exception:
+            return "Error: El jugador debe ser un objeto Futbolista"
+        if self.largoLista(self.jugadores) >= 23:
+            return "Error: No se puede agregar más de 23 jugadores"
+        i = 0
+        total = self.largoLista(self.jugadores)
+        while i < total:
+            if self.jugadores[i].dorsal == futbolista.dorsal:
+                return "Error: Ya existe un jugador con ese dorsal"
+            i += 1
+
+        nueva_lista = [0] * (total + 1)
+        i = 0
+        while i < total:
+            nueva_lista[i] = self.jugadores[i]
+            i += 1
+        nueva_lista[total] = futbolista
+        self.jugadores = nueva_lista
+        return "Jugador agregado correctamente"
+
+    """
+    Nombre: eliminar_jugador
+    Entradas: dorsal
+    Salidas: elimina un futbolista de la lista según su dorsal
+    Restricciones:
+        dorsal debe ser entero
+    """
+    def eliminar_jugador(self, dorsal):
+        if not isinstance(dorsal, int):
+            return "Error: El dorsal debe ser de tipo entero"
+        indice = -1
+        i = 0
+        total = self.largoLista(self.jugadores)
+        while i < total:
+            if self.jugadores[i].dorsal == dorsal:
+                indice = i
+            i += 1
+
+        if indice == -1:
+            return "Error: No se encontró un jugador con ese dorsal"
+
+        nueva_lista = [0] * (total - 1)
+        i = 0
+        j = 0
+        while i < total:
+            if i != indice:
+                nueva_lista[j] = self.jugadores[i]
+                j += 1
+            i += 1
+
+        self.jugadores = nueva_lista
+        return "Jugador eliminado correctamente"
+
+    """
+    Nombre: asignar_entrenador
+    Entradas: entrenador
+    Salidas: asigna o reemplaza el entrenador del equipo
+    Restricciones:
+        entrenador debe ser un objeto Entrenador
+    """
+    def asignar_entrenador(self, entrenador):
+        try:
+            valor = entrenador.licencia
+        except Exception:
+            return "Error: El entrenador debe ser un objeto Entrenador"
+        self.entrenador = entrenador
+        return "Entrenador asignado correctamente"
+
+    """
+    Nombre: registrar_resultado
+    Entradas: goles_favor, goles_contra, tarjetas_am, tarjetas_rojas
+    Salidas:  actualiza los totales del equipo tras un partido
+    Restricciones:
+        todos los valores deben ser enteros no negativos
+    """
+    def registar_resultado(self, goles_favor, goles_contra, tarjetas_am, tarjetas_rojas):
+        if not isinstance(goles_favor, int):
+            return "Error: goles_favor debe ser un número entero"
+        elif goles_favor < 0:
+            return "Error: goles_favor no puede ser negativo"
+        elif not isinstance(goles_contra, int):
+            return "Error: goles_contra debe ser un número entero"
+        elif goles_contra < 0:
+            return "Error: goles_contra no puede ser negativo"
+        elif not isinstance(tarjetas_am, int):
+            return "Error: tarjetas_am debe ser un número entero"
+        elif tarjetas_am < 0:
+            return "Error: tarjetas_am no puede ser negativo"
+        elif not isinstance(tarjetas_rojas, int):
+            return "Error: tarjetas_rojas debe ser un número entero"
+        elif tarjetas_rojas < 0:
+            return "Error: tarjetas_rojas no puede ser negativo"
+        else:
+            self.total_goles_favor += goles_favor
+            self.total_goles_contra += goles_contra
+            self.total_tarjetas_amarillas += tarjetas_am
+            self.total_tarjetas_rojas += tarjetas_rojas
+            return "Resultado registrado correctamente"
+
+    """
+    Nombre: calcular_fuerza_equipo
+    Entradas: ninguna
+    Salidas: calcula y actualiza el atributo fuerza_equipo (ver fórmula en sección 5)
+    Restricciones:
+        debe haber al menos 11 jugadores convocados
+    """
+    def calcular_fuerza_equipo(self):
+        if self.largoLista(self.jugadores) < 11:
+            return "Error: La selección debe tener al menos 11 jugadores para calcular la fuerza"
+        else:
+            suma_puntaje = 0
+            i = 0
+            total = self.largoLista(self.jugadores)
+            while i < total:
+                suma_puntaje += self.jugadores[i].puntaje_individual
+                i += 1
+            self.fuerza_equipo = suma_puntaje + self.total_goles_favor - self.total_goles_contra
+            return "Fuerza de equipo calculada correctamente"
+
+"""
+Nombre: Partido
+Atributos: id_partido, equipo_1, equipo_2, goles_equipo1, goles_equipo2, fase, fecha
+Métodos: Constuctor, simular, generar_ganador, mostrar_resultado
+"""
+class Partido:
+    """
+    Definición: Constructor
+    Salidas: inicializa los atributos (los goles inician en 0)
+    """
+    def __init__(self, id_partido, equipo_1, equipo_2, goles_equipo1, holes_equipo2, fase, fecha):
+        self.id_partido = id_partido
+        self.equipo_1 = equipo_1
+        self.equipo_2 = equipo_2
+        self.goles_equipo1 = 0
+        self.goles_equipo2 = 0
+        self.fase = fase
+        self.fecha = fecha
+
+    """
+    Nombre: simular
+    Entradas: usa los atributos del partido y las selecciones
+    Salidas:  ejecuta el algoritmo de simulación (sección 5) y asigna los goles de cada equipo
+    """
+    def simular(self):
+        if not isinstance(self.id_partido, int):
+            return "Error: id_partido debe ser un número entero"
+        if not isinstance(self.fase, str):
+            return "Error: La fase debe ser de tipo String"
+        if not isinstance(self.fecha, str):
+            return "Error: La fecha debe ser de tipo String"
         
+        try:
+            fuerza1 = self.equipo_1.fuerza_equipo
+        except Exception:
+            return "Error: equipo_1 debe ser un objeto Seleccion válido"
+        try:
+            fuerza2 = self.equipo_2.fuerza_equipo
+        except Exception:
+            return "Error: equipo_2 debe ser un objeto Seleccion válido"
+        
+        if not isinstance(fuerza1, int):
+            return "Error: fuerza_equipo de equipo_1 debe ser un número entero"
+        if not isinstance(fuerza2, int):
+            return "Error: fuerza_equipo de equipo_2 debe ser un número entero"
+        
+        if fuerza1 > fuerza2:
+            self.goles_equipo1 = 2
+            self.goles_equipo2 = 1
+        elif fuerza1 < fuerza2:
+            self.goles_equipo1 = 1
+            self.goles_equipo2 = 2
+        else:
+            self.goles_equipo1 = 1
+            self.goles_equipo2 = 1
+
+        return "Partido simulado correctamente"
+
+    """
+    Nombre: generar_ganador
+    Entradas: usa goles_equipo1 y goles_equipo2
+    Salidas:  retorna la selección ganadora, o None en caso de empate (solo válido en fase de grupos)
+    """
+    def generar_ganador(self):
+        if not isinstance(self.goles_equipo1, int):
+            return "Error: goles_equipo1 debe ser un número entero"
+        if not isinstance(self.goles_equipo2, int):
+            return "Error: goles_equipo2 debe ser un número entero"
+        if self.goles_equipo1 > self.goles_equipo2:
+            return self.equipo_1
+        elif self.goles_equipo2 > self.goles_equipo1:
+            return self.equipo_2
+        else:
+            return None
+
+    """
+    Nombre: mostrar_resultado
+    Entradas: usa los atributos del partido
+    Salidas: muestra el resultado del partido en formato legible
+    """
+    def mostrar_resultado(self):
+        if not isinstance(self.fase, str):
+            return "Error: La fase debe ser de tipo String"
+        if not isinstance(self.fecha, str):
+            return "Error: La fecha debe ser de tipo String"
+        if not isinstance(self.goles_equipo1, int):
+            return "Error: goles_equipo1 debe ser un número entero"
+        if not isinstance(self.goles_equipo2, int):
+            return "Error: goles_equipo2 debe ser un número entero"
+        try:
+            codigo1 = self.equipo_1.codigo_equipo
+        except Exception:
+            return "Error: equipo_1 debe ser un objeto Seleccion válido"
+        try:
+            codigo2 = self.equipo_2.codigo_equipo
+        except Exception:
+            return "Error: equipo_2 debe ser un objeto Seleccion válido"
+
+        print("Resultado:", codigo1, self.goles_equipo1, "-", self.goles_equipo2, codigo2)
+        
+        
+
+
+
+
+
+    
         
