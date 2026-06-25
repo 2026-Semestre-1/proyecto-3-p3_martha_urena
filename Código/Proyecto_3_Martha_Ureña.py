@@ -3,7 +3,7 @@
 *APUNTES:
 -super() me lo enseño a usar el tutor de taller, me funciona para poder llamar el constructor de la clase que se heredan los atributos.
 """
-
+import random
 """
 Nombre: Pais
 Atributos: codigo_fifa, nombre, continente, ranking_fifa
@@ -540,6 +540,9 @@ class Seleccion:
 
     """
     def agregar_jugador(self, futbolista):
+        if not isinstance(futbolista, Futbolista):
+            return "Error: El parámetro debe ser un objeto de Futbolista"
+        
         try:
             valor = futbolista.dorsal
         except Exception:
@@ -656,17 +659,45 @@ class Seleccion:
         if resultado_validacion != "Jugadores válidos":
             return resultado_validacion
         
+        total_jugadores = self.largoLista(self.jugadores)
         if self.largoLista(self.jugadores) < 11:
             return "Error: La selección debe tener al menos 11 jugadores para calcular la fuerza"
-        else:
-            suma_puntaje = 0
-            i = 0
-            total = self.largoLista(self.jugadores)
-            while i < total:
-                suma_puntaje += self.jugadores[i].puntaje_individual
-                i += 1
-            self.fuerza_equipo = suma_puntaje + self.total_goles_favor - self.total_goles_contra
-            return "Fuerza de equipo calculada correctamente"
+
+        puntajes = [0] * total_jugadores
+        indice_jugador = 0
+        while indice_jugador < total_jugadores:
+            puntajes[indice_jugador] = self.jugadores[indice_jugador].puntaje_individual
+            indice_jugador += 1
+
+        #Acá ordeno de mayor a menor manualmente
+        num_pasada = 0
+        while num_pasada < total_jugadores:
+            indice_actual = 0
+            while indice_actual < total_jugadores - num_pasada - 1:
+                if puntajes[indice_actual] < puntajes[indice_actual + 1]:
+                    #Realizo el intercambio
+                    puntaje_temporal = puntajes[indice_actual]
+                    puntajes[indice_actual] = puntajes[indice_actual + 1]
+                    puntajess[indice_actual + 1] = temporal
+                indice_actual += 1
+            num_pasada += 1
+        #Calculo el promedio de los 11 titulares
+        suma_titulares = 0
+        contador_titulares = 0
+        while conntador_titulares < 11:
+            suma_titulares += puntajes[contador_titulaares]
+            contador_titulares += 1
+        promedio_jugadores = suma_titulares / 11
+
+        factor_entrenador = self.entrenador.experiencia_anios * 4
+        if factor_entrenador > 100:
+            factor_entrenador = 100
+
+        factor_ranking = 100 - self.ranking_fifa
+        fuerza = (promedio_jugadoreeeees * 0.6) + (factor_entrenador * 0.25) + (factor_ranking * 0.15)
+        self.fuerza_equipo = fuerza
+        return "Fuerza de equipo calculada correctamente"
+    
 
 """
 Nombre: Partido
@@ -718,15 +749,27 @@ class Partido:
         if not isinstance(fuerza2, int):
             return "Error: fuerza_equipo de equipo_2 debe ser un número entero"
         
+        #Base aleatoria
+        goles_1 = random.randint(0, 4)
+        goles_2 = random.randint(0, 4)
+
+        #reste el menor al mayor
         if fuerza1 > fuerza2:
-            self.goles_equipo1 = 2
-            self.goles_equipo2 = 1
+            diferencia = fuerza1 - fuerza2
+            bono_fuerza = diferencia // 20 #20= puntos de fuerza que debe superar un equipo del otro
+            self.goles_equipo1 = goles_1 + bono_fuerza
+            self.goles_equipo2 = goles_2
+            
         elif fuerza1 < fuerza2:
-            self.goles_equipo1 = 1
-            self.goles_equipo2 = 2
+            diferencia = fuerza2 - fuerza1
+            bono_fuerza = diferencia // 20
+            self.goles_equipo1 = goles_1
+            self.goles_equipo2 = goles_2 + bono_fuerza
+            
         else:
-            self.goles_equipo1 = 1
-            self.goles_equipo2 = 1
+            self.goles_equipo1 = goles_1
+            self.goles_equipo2 = goles_2
+            
 
         return "Partido simulado correctamente"
 
@@ -870,10 +913,18 @@ class Grupo:
         while indice_equipo_uno < total_equipos:
             indice_equipo_dos = indice_equipo_uno + 1
             while indice_equipo_dos < total_equipos:
-                partido = Partido(id_partido, self.equipos[indice_equipo_uno], self.equipos[indice_equipo_dos], self.nombre_grupo, self.fecha)
+                equipo_uno = self.equipos[indice_equipo_uno]
+                equipo_dos = self.equipos[indice_equipo_dos]
+
+                partido = Partido(id_partido, equipo_uno, equipo_dos, self.nommbre_grupo, self.fecha)
                 resultado_partido = partido.simular()
+                
                 if resultado_partido != "Partido simulado correctamente":
                     return resultado_partido
+
+                equipo_uno.registrar_resultado(partido.goles_equipo1, partido.goles_equipo2, partido.tarjetas_equipo1)
+
+                equipo_dos.registrar_resultado(partido.goles_equipo2, partido.goles_equipo1, partido.tarjetas_equipo2)
 
                 total_partidos_actuales = self.largoLista(self.partidos)
                 nueva_lista_partidos = [0] * (total_partidos_actuales + 1)
@@ -881,13 +932,15 @@ class Grupo:
                 while indice_partido_actual < total_partidos_actuales:
                     nueva_lista_partidos[indice_partido_actual] = self.partidos[indice_partido_actual]
                     indice_partido_actual += 1
+            
                 nueva_lista_partidos[total_partidos_actuales] = partido
                 self.partidos = nueva_lista_partidos
-
+            
                 id_partido += 1
                 indice_equipo_dos += 1
+            
             indice_equipo_uno += 1
-
+        
         return "Partidos simulados correctamente"
 
     """
@@ -1152,12 +1205,20 @@ class Fase:
                     return "Error: fuerza_equipo de equipo_1 debe ser un número entero"
                 if not isinstance(fuerza2, int):
                     return "Error: fuerza_equipo de equipo_2 debe ser un número entero"
-                if fuerza1 > fuerza2:
-                    partido.goles_equipo1 += 1
-                elif fuerza2 > fuerza1:
-                    partido.goles_equipo2 += 1
-                else:
-                    partido.goles_equipo1 += 1
+
+                penales1 = 0
+                penales2 = 0
+                hay_empate = True
+
+                while hay_empate:
+                    penales1 = random.randint(2, 5)
+                    penales2 = random.randint(2, 5)
+
+                    if penales1 != penales2:
+                        hay_empate = False
+
+                partido.penales_equipo1 = penales1
+                partido.penales_equipo2 = penales2
 
             indice += 1
 
@@ -1247,7 +1308,7 @@ class Mundial:
         self.selecciones = []
         self.grupos = []
         self.fases = []
-        self.campeon = ""
+        self.campeon = None
 
     """
     Nombre: largoLista
