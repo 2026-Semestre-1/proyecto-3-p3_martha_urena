@@ -48,7 +48,7 @@ class Pais:
         except Exception:
             return True
 
-        return True
+        return False
     """
     Nombre: mostrar_datos
     Entradas: self.nombre, self.codigo, self.continente, self.ranking_fila
@@ -606,6 +606,8 @@ class Seleccion:
         entrenador debe ser un objeto Entrenador
     """
     def asignar_entrenador(self, entrenador):
+        if not isinstance(entrenador, Entrenador):
+            return "Error: El parámetro debe ser un objeto de Entrenador"
         try:
             valor = entrenador.licencia
         except Exception:
@@ -678,14 +680,14 @@ class Seleccion:
                     #Realizo el intercambio
                     puntaje_temporal = puntajes[indice_actual]
                     puntajes[indice_actual] = puntajes[indice_actual + 1]
-                    puntajess[indice_actual + 1] = temporal
+                    puntajes[indice_actual + 1] = puntaje_temporal
                 indice_actual += 1
             num_pasada += 1
         #Calculo el promedio de los 11 titulares
         suma_titulares = 0
         contador_titulares = 0
-        while conntador_titulares < 11:
-            suma_titulares += puntajes[contador_titulaares]
+        while contador_titulares < 11:
+            suma_titulares += puntajes[contador_titulares]
             contador_titulares += 1
         promedio_jugadores = suma_titulares / 11
 
@@ -693,8 +695,8 @@ class Seleccion:
         if factor_entrenador > 100:
             factor_entrenador = 100
 
-        factor_ranking = 100 - self.ranking_fifa
-        fuerza = (promedio_jugadoreeeees * 0.6) + (factor_entrenador * 0.25) + (factor_ranking * 0.15)
+        factor_ranking = 100 - self.pais.ranking_fifa
+        fuerza = (promedio_jugadores * 0.6) + (factor_entrenador * 0.25) + (factor_ranking * 0.15)
         self.fuerza_equipo = fuerza
         return "Fuerza de equipo calculada correctamente"
     
@@ -916,15 +918,15 @@ class Grupo:
                 equipo_uno = self.equipos[indice_equipo_uno]
                 equipo_dos = self.equipos[indice_equipo_dos]
 
-                partido = Partido(id_partido, equipo_uno, equipo_dos, self.nommbre_grupo, self.fecha)
+                partido = Partido(id_partido, equipo_uno, equipo_dos, self.nombre_grupo, self.fecha)
                 resultado_partido = partido.simular()
                 
                 if resultado_partido != "Partido simulado correctamente":
                     return resultado_partido
 
-                equipo_uno.registrar_resultado(partido.goles_equipo1, partido.goles_equipo2, partido.tarjetas_equipo1)
+                equipo_uno.registrar_resultado(partido.goles_equipo1, partido.goles_equipo2, 0, 0)
 
-                equipo_dos.registrar_resultado(partido.goles_equipo2, partido.goles_equipo1, partido.tarjetas_equipo2)
+                equipo_dos.registrar_resultado(partido.goles_equipo2, partido.goles_equipo1, 0, 0)
 
                 total_partidos_actuales = self.largoLista(self.partidos)
                 nueva_lista_partidos = [0] * (total_partidos_actuales + 1)
@@ -1019,9 +1021,9 @@ class Grupo:
         
         indice_equipo = 0
         while indice_equipo < total_equipos:
+            mejor_indice = indice_equipo
             indice_equipo_comparado = indice_equipo + 1
             while indice_equipo_comparado < total_equipos:
-                mejor_indice = indice_equipo
                 if self.tabla_puntos[indice_equipo_comparado] > self.tabla_puntos[mejor_indice]:
                     mejor_indice = indice_equipo_comparado
                 elif self.tabla_puntos[indice_equipo_comparado] == self.tabla_puntos[mejor_indice]:
@@ -1030,6 +1032,7 @@ class Grupo:
                     elif self.tabla_diferencia[indice_equipo_comparado] == self.tabla_diferencia[mejor_indice]:
                         if self.tabla_goles_favor[indice_equipo_comparado] > self.tabla_goles_favor[mejor_indice]:
                             mejor_indice = indice_equipo_comparado
+                    indice_equipo_comparado += 1
 
                 
 
@@ -1652,7 +1655,7 @@ class Mundial:
         archivo.write("Selecciones registradas: " + str(self.largoLista(self.selecciones)) + "\n")
         archivo.write("Grupos creados: " + str(self.largoLista(self.grupos)) + "\n")
 
-        if self.campeon != "":
+        if self.campeon is not None:
             archivo.write("Campeón: " + self.campeon.codigo_equipo + "\n")
         else:
             archivo.write("Campeón: Sin definir\n")
@@ -1660,3 +1663,223 @@ class Mundial:
         archivo.close()
 
         return "Reporte generado correctamente"
+
+    """
+    Nombre: guardar_datos
+    Entradas: ninguna
+    Salidas: escribe los 6 archivos txt con la información actual
+    Restricciones: ninguna
+    """
+    def guardar_datos(self):
+        # paises.txt
+        archivo_paises = open("paises.txt", "w")
+        total_p = self.largoLista(self.paises)
+        indice = 0
+        while indice < total_p:
+            p = slef.largoLista[indice]
+            archivo_paises.write(p.codigo_fifa + "|" + p.nombre + "|" + p.continente + "|" + str(p.ranking_fifa) + "\n")
+            indice += 1
+        archivo_paises.close()
+
+        # selecciones.txt
+        archivo_selecciones = open("selecciones.txt", "w")
+        total_s = self.largoLista(self.selecciones)
+        inicio = 0
+        while inicio < total_s:
+            seleccion = self.selecciones[inicio]
+            archivo_selecciones.write(seleccion.codigo_equipo + "|" + seleccion.pais.codigo_fifa + "|" + seleccion.entrenador.nombre + "|" + seleccion.entrenador.apellido + "|" + str(seleccion.fuerza_equipo) + "\n")
+            inicio += 1
+        achivo_selecciones.close()
+
+        # jugadores.txt
+        """
+        Simbología de valiables:
+        i = indice para recorrer (contador)
+        s = objeto de la clase Seleccion
+        j = contador secuencial secundario
+        f = objeto de la clase Futbolista
+        """
+        archivo_jugadores = open("jugadores.txt", "w")
+        i = 0
+        while i < total_s:
+            s = self.selecciones[i]
+            total_j = self.largoLista(s.jugadores)
+            j = 0
+            while j < total_j:
+                f = s.jugadores[j]
+                archivo_jugadores.write(s.codigo_equipo + "|" + f.nombre + "|" + f.apellido + "|" + f.fecha_nacimiento + "|" + f.nacionalidad + "|" + str(f.dorsal) + "|" + f.posicion + "|" + str(f.total_tarjetas_amarillas) + "|" + str(f.total_tarjetas_rojas) + "|" + str(f.goles) + "|" + str(f.asistencias) + "|" + str(f.puntaje_individual) + "\n")
+                j += 1
+            i += 1
+        archivo_jugadores.close()
+
+        # partidos.txt
+        """
+        Simbología de valiables:
+        i = indice para recorrer (contador)
+        j = contador secuencial secundario
+        p = objeto de la clase Partido
+        """
+        archivo_partidos = open("partidos.txt", "w")
+        total_g = self.largoLista(self.grupos)
+        i = 0
+        while i < total_g:
+            grupo = self.grupos[i]
+            total_partidos = self.largoLista(grupo.partidos)
+            j = 0
+            while j < total_partidos:
+                p = grupo.partidos[j]
+                archivo_partidos.write(p.fase + "|" + p.equipo_1.codigo_equipo + "|" + str(p.goles_equipo1) + "|" + str(p.goles_equipo2) + "|" + p.equipo_2.codigo_equipo + "|" + p.fecha + "\n")
+                j += 1
+            i += 1
+        archivo_partidos.close()
+
+        # ranking_goleadores.txt
+        """
+        Simbología de valiables:
+        ini = controlador ppara fijar el limite del ciclo
+        j = contador secuencial
+        i = indice para recorrer
+        """
+            #cuento los jugadores para seber el tamaño del arreglo(lista)
+        total_jugadores_global = 0
+        ini = 0
+        while ini < total_s:
+            total_jugadores_global += self.largoLista(self.selecciones[ini].jugadores)
+            ini += 1
+
+        lista_goleadores = [0] * total_jugadores_global
+        indice_g = 0
+        i = 0
+        while i < total_s:
+            s = self.selecciones[i]
+            total_j = self.largoLista(s.jugadores)
+            j = 0
+            while j < total_j:
+                lista_goleadores[indice_g] = s.jugadores[j]
+                indice_g += 1
+                j += 1
+            i += 1
+            
+            # ordeno manualmente de mayor a menor cantidad de goles
+        num_pasada = 0
+        while num_pasada < total_jugadores_global:
+            indice_actual = 0
+            while indice_actual < total_jugadores_global - num_pasada - 1:
+                if lista_goleadores[indice_actual].goles < lista_goleadores[indice_actual + 1].goles:
+                    temp = lista_goleadores[indice_actual]
+                    lista_goleadores[indice_actual] = lista_goleadores[indice_actual + 1]
+                    lista_goleadores[indice_actual + 1] = temp
+                indice_actual += 1
+            num_pasada += 1
+            
+            # Guardo en el archivo txt
+        archivo_goleadores = open("ranking_goleadores.txt", "w")
+        i = 0
+        while i < total_jugadores_global:
+            jug = lista_goleadores[i]
+            archivo_goleadores.write(str(jug.dorsal) + "|" + jug.nombre + "|" + jug.apellido + "|" + jug.posicion + "|" + str(jug.goles) + "|" + str(jug.total_tarjetas_amarillas) + "|" + str(jug.total_tarjetas_rojas) + "|" + str(jug.puntaje_individual) + "\n")
+            i += 1
+        archivo_goleadores.close()
+        
+        # ranking_selecciones.txt
+        
+            #copio la lista de selecciones original, para no modificar la original
+        lista_ranking_sel = [0] * total_s
+        i = 0
+        while i < total_s:
+            lista_ranking_sel[i] = self.selecciones[i]
+            i += 1
+
+            #ordeno manualmente por fuerza de equipo de mayor a menor
+        num_pasada = 0
+        while num_pasada < total_s:
+            indice_actual = 0
+            while indice_actual < total_s - num_pasada - 1:
+                if lista_ranking_sel[indice_actual].fuerza_equipo < lista_ranking_sel[indice_actual + 1].fuerza_equipo:
+                    temp = lista_ranking_sel[indice_actual]
+                    lista_ranking_sel[indice_actual] = lista_ranking_sel[indice_actual + 1]
+                    lista_ranking_sel[indice_actual + 1] = temp
+                indice_actual += 1
+            num_pasada += 1
+
+            #Guardo en el archivo txt
+        archivo_ranking_sel = open("ranking_selecciones.txt", "w")
+        i = 0
+        while i < total_s:
+            sel = lista_ranking_sel[i]
+            archivo_ranking_sel.write(sel.codigo_equipo + "|" + sel.pais.nombre + "|" + str(sel.fuerza_equipo) + "\n")
+            i += 1
+        archivo_ranking_sel.close()
+
+    """
+    Nombre: cargar_datos
+    Entradas: ninguna
+    Salidas: lee los archivos txt y restaura los datos(objetos) manualmente
+    Restricciones: ninguna
+    """
+    def cargar_datos(self):
+        try:
+            
+            #Cargo los paises
+            archivo = open("paises.txt", "r")
+            lineas = archivo.readlines()
+            archivo.close()
+            i = 0
+            while i < largoLista(lineas):
+                datos = lineas[i].strip().split("|")
+                nuevo_p = Pais(datos[0], datos[1], datos[2], int(datos[3]))
+                self.registrar_pais(nuevo_p)
+                i += 1
+
+            #Cargo las selecciones
+            archivo = open("selecciones.txt", "r")
+            lineas = archivo.readlines()
+            archivo.close()
+            i = 0
+            while i < largoLista(lineas):
+                datos = lineas[i].strip().split("|")
+                #busco manualmente el objeto Pais
+                pais_encontrado = None
+                total_p = self.largoLista(self.paises)
+                p_ind = 0
+                while p_ind < total_p:
+                    if self.paises[p_ind].codigo_fifa == datos[1]:
+                        pais_encontrado = self.paises[p_ind]
+                    p_ind += 1
+                    
+
+                #Reconstruyo un entrenador base con los datos guardados
+                nuevo_entrenador = Entrenador(datos[2], datos[3], "No registrada", "No registrada", "Licencia Base", 5, "4-4-2")
+
+                nueva_s = Seleccion(datos[0], pais_encontrado, nuevo_entrenador)
+                nueva_s.fuerza_equipo = int(datos[4])
+                self.registrar_seleccion(nueva_s)
+                i += 1
+
+            #Cargo los jugadores
+            archivo = open("jugadores.txt", "r")
+            lineas = archivo.readlines()
+            archivo.close()
+            i = 0
+            while i < largoLista(lineas):
+                datos = lineas[i].strip().split("|")
+
+                #busco manualmente a la seleccion que pertenece
+                sel_encontrada = None
+                total_s = self.largoLista(self.selecciones)
+                s_ind = 0
+                while s_ind < total_s:
+                    if self.selecciones[s_ind].codigo_equipo == datos[0]:
+                        sel_encontrada = self.selecciones[s_ind]
+                    s_ind += 1
+                
+                if sel_encontrada is not None:
+                    #coloco al futbolista con sus datos estadísticos guardados
+                    nuevo_f = Futbolista(datos[1], datos[2], datos[3], datos[4], int(datos[5]), datos[6], int(datos[7]), int(datos[8]), int(datos[9]), int(datos[10]), int(datos[11]))
+                    sel_encontrada.agregar_jugador(nuevo_f)
+                i += 1
+            return "Datos recuperados correctamente de los archivos de texto."
+        except FileNotFoundError:
+            return "No se encontraron archivos de sesiones previas. Iniciando sistema limpio."
+        
+        
