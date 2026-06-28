@@ -1,0 +1,8 @@
+ARG|Argentina|CONMEBOL|1
+BRA|Brasil|CONMEBOL|5
+CRC|Costa Rica|CONCACAF|52
+FRA|Francia|UEFA|2
+ESP|España|UEFA|8
+GER|Alemania|UEFA|12
+JPN|Japón|AFC|18
+USA|Estados Unidos|CONCACAF|11

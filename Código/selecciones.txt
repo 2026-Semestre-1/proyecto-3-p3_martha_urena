@@ -1,0 +1,8 @@
+ARG|ARG|Entrenador|Argentina|01/01/1970|Argentina|Pro|10|4-3-3|71.26818181818182|0|0|0|0
+BRA|BRA|Entrenador|Brasil|01/01/1970|Brasil|Pro|11|4-3-3|71.66818181818181|0|0|0|0
+CRC|CRC|Entrenador|Costa Rica|01/01/1970|Costa Rica|Pro|12|4-3-3|66.92727272727272|0|0|0|0
+FRA|FRA|Entrenador|Francia|01/01/1970|Francia|Pro|13|4-3-3|71.55454545454545|0|0|0|0
+ESP|ESP|Entrenador|España|01/01/1970|España|Pro|14|4-3-3|74.54545454545455|0|0|0|0
+GER|GER|Entrenador|Alemania|01/01/1970|Alemania|Pro|15|4-3-3|71.12727272727273|0|0|0|0
+JPN|JPN|Entrenador|Japón|01/01/1970|Japón|Pro|16|4-3-3|76.46363636363635|0|0|0|0
+USA|USA|Entrenador|Estados Unidos|01/01/1970|Estados Unidos|Pro|17|4-3-3|77.09545454545454|0|0|0|0
